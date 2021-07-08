@@ -1,52 +1,25 @@
 
 import './App.css';
 import React from 'react';
-import MediaCard from './MediaCard.js';
-import MediaCardHospital from './MediaCardHospital';
-import MediaCardNgo from './MediaCardNgo';
-import { Grid } from '@material-ui/core/';
-import Navbar from './Navbar';
-import { makeStyles } from '@material-ui/core/styles';
-import Background from './asset/bg2.jpg'
+import { Route , Switch } from 'react-router-dom';
+import About from './About';
+import Developers from './Developers';
+import Home from './Home';
+import  Signup from './Signup';
 
-const useStyles = makeStyles((theme) =>({
-      
-  root : {
-      minHeight : "100vh",
-      backgroundImage: `url(${Background})`
-     
-  },
 
-}));
 
 
 
 function App() {
-  const classes  =  useStyles();
+     
   return (
-    <div className={classes.root}>
-
-         <Navbar/>
-          
-         
-         <Grid container justify= "center"  >
-           <Grid item xs = {4}  >
-           <MediaCard />
-           </Grid>
-           
-           <Grid item xs = {4} >
-           <MediaCardHospital />
-           </Grid>
-           
-           <Grid item xs = {4} >
-           <MediaCardNgo />
-           </Grid>
-
-         </Grid>
-
-         
-      
-    </div>
+    <Switch>
+    <Route  exact path = '/' component = {Home} />
+    <Route  path = "/about" component={About}/>
+    <Route  path = "/developers" component={Developers} />
+    <Route  path = "/signup" component={Signup} />
+  </Switch>
   );
 }
 
