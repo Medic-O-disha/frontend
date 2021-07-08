@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   appbarTransparent:{
-    backgroundColor: 'rgba(67 , 129 , 168 , 0.5)'
+    backgroundColor: 'rgba(0, 122, 122, 0.1)'
   },
 
   appbarSolid:{
@@ -23,6 +23,11 @@ const useStyles = makeStyles((theme) => ({
 
   buttons : {
       color : 'none'
+  },
+
+  signin : {
+      marginInlineStart : '200',
+      marginLeft :'200',
   },
 
 }));
@@ -68,13 +73,19 @@ function Navbar() {
 
           <div  >
           <ul className = {classes.buttons}>
-          <Button  color="secondary" href="#contained-buttons">  <strong> HOME </strong> </Button>
-          <Button  color="secondary" href="#contained-buttons"> <strong> ABOUT US </strong> </Button>
-          <Button  color="secondary" href="#contained-buttons"> <strong>  CONTACT US </strong>  </Button>
-          <Button  color="secondary" href="#contained-buttons">  <strong>DEVELOPERS  </strong> </Button>
+          <Button  color="textSecondary" href="/">  <strong> HOME </strong> </Button>
+          <Button  color="textSecondary" href="#contained-buttons">  <strong>IDEAS  </strong> </Button>
+          <Button  color="textSecondary" href="/about"> <strong> ABOUT US </strong> </Button>
+          
         
          </ul>
          </div>
+
+         <div className={classes.signin}>
+         <Button  color="textSecondary" href="/signup">  <strong> SIGN IN   </strong> </Button>
+         </div>
+
+
 
     
 
