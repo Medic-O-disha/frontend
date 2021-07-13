@@ -39,7 +39,7 @@ const useStyles = makeStyles ((theme) =>({
 
   return (
     <div className= "rows">
-    <Card className={classes.root}>
+    <Card className={classes.root} elevation = {20} >
       <CardActionArea>
         <CardMedia
           className={classes.media}
@@ -49,7 +49,7 @@ const useStyles = makeStyles ((theme) =>({
         <CardContent>
         <Avatar alt="Remy Sharp" src={ aryan }  className={classes.sizeAvatar} />
           <Typography gutterBottom variant="h5" component="h2" >
-            <b> ARYAN <span color = "textSecondary"> SINHA  </span> </b>
+            <b> SATYAPRAKASH <span color = "textSecondary"> SAHOO  </span> </b>
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
           I am a first year student at IIIT BBSR "( ETC )" . I am an <b>  CP </b> enthusiast . 

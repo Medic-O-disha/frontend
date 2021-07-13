@@ -40,7 +40,7 @@ const useStyles = makeStyles ((theme) =>({
 
   return (
     <div className= "rows">
-    <Card className={classes.root}>
+    <Card className={classes.root} elevation = {20} >
       <CardActionArea>
         <CardMedia
           className={classes.media}
