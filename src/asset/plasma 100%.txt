@@ -1,0 +1,397 @@
+SearchDonorViewModel
+---------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.ComponentModel.DataAnnotations;
+
+namespace PlasmaDonorTracker.Models
+{
+    public class SearchDonorViewModel
+    {
+        [Required(ErrorMessage = "Please provide blood group to search")]
+        [Display(Name ="Blood Group")]
+        public string BloodGroup { get; set; }
+
+        [Required(ErrorMessage = "Please provide city name to search")]
+        [StringLength(25,ErrorMessage ="City name must not exceed 25 characters")]
+        [Display(Name = "Donor City")]
+        public string DonorCity { get; set; }
+        public List<Donor> Donors { get; set; }
+    }
+}
+--------------------------------------------
+Donor.cs
+-----------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.ComponentModel.DataAnnotations;
+
+namespace PlasmaDonorTracker.Models
+{
+    public class Donor
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Display(Name ="Donor Name")]
+        [Required(ErrorMessage ="Please provide donor name")]
+        [StringLength(25,ErrorMessage ="Donor name cannot exceed 25 characters")]
+       
+        public string DonorName { get; set; }
+
+        [Display(Name ="Blood Group")]
+        [Required(ErrorMessage ="Please provide donor blood group")]
+        [StringLength(3)]
+
+        public string BloodGroup { get; set; }
+
+        [Display(Name ="Recovery Date")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime RecoveryDate { get; set; }
+
+        [Display(Name ="Donor Mobile No.")]
+        [Required(ErrorMessage ="Please provide donor mobile number")]
+        [StringLength(10,ErrorMessage = "Please enter 10 digit mobile number")]
+        [RegularExpression(@"^[0-9]{10}$", ErrorMessage ="Please enter 10 digit mobile number")]
+        public string DonorMobileNo { get; set; }
+
+        [Display(Name ="Donor City")]
+        [Required(ErrorMessage ="Please provide donor city name")]
+        [StringLength(25,ErrorMessage = "City name must not exceed 25 characters")]
+        public string DonorCity { get; set; }
+    }
+}
+----------------------------------------------
+Donor-controller
+-------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using PlasmaDonorTracker.Models;
+
+namespace PlasmaDonorTracker.Controllers
+{
+    public class DonorsController : Controller
+    {
+        // GET: Donors
+        private DonorRepository repository;
+        public DonorsController()
+        {
+            repository = new DonorRepository();
+        }
+        static List<SelectListItem> BloodGroups = new List<SelectListItem>()
+        {
+            new SelectListItem{ Text = "A+", Value = "A+"},
+            new SelectListItem{ Text = "A-", Value = "A-"},
+            new SelectListItem{ Text = "B+", Value = "B+"},
+            new SelectListItem{ Text = "B-", Value = "B-"},
+            new SelectListItem{ Text = "AB+", Value = "AB+"},
+            new SelectListItem{ Text = "AB-", Value = "AB-"},
+            new SelectListItem{ Text = "O+", Value = "O+"},
+            new SelectListItem{ Text = "O-", Value = "O-"}
+        };
+        SelectList BloodGroup = new SelectList(BloodGroups);
+        public ActionResult Add()
+        {
+            ViewBag.Message = "";
+            ViewBag.BloodGroups = BloodGroup;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Add(Donor donor)
+        {
+            ViewBag.BloodGroups = BloodGroup;
+            if (!ModelState.IsValid)
+            {
+                return View(donor);
+            }
+            bool isSaved = repository.AddDonor(donor);
+            if (isSaved)
+                ViewBag.Message = "Donor details added successfully";
+            else
+             ViewBag.Message = "Failed to add donor details. Try again later";
+            return View(donor);
+        }
+        public ActionResult Search()
+        {
+            ViewBag.BloodGroups = BloodGroup;
+            ViewBag.Searched = false;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Search(SearchDonorViewModel model)
+        {
+            ViewBag.BloodGroups = BloodGroup;
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            ViewBag.Searched = true;
+            model.Donors = repository.Search(model.DonorCity, model.BloodGroup);
+            return View(model);
+        }
+    }
+}
+--------------------------------------------------------------------
+Search.cs
+-----------
+@model PlasmaDonorTracker.Models.SearchDonorViewModel
+
+@{
+    ViewBag.Title = "Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Search a donor</h2>
+
+<hr>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DonorCity, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DonorCity, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DonorCity, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.BloodGroup, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.BloodGroup, new SelectList(ViewBag.BloodGroups.Items, "Value", "Text"), "Select Blood Group", new { @class = "form-control" })
+                @* @Html.DropDownListFor(model => model.BloodGroup, (SelectList)ViewBag.BloodGroup, "Select Blood Group", new { @class = "form-control" })*@
+                @Html.ValidationMessageFor(model => model.BloodGroup, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Search" id="btnSubmit" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+@if(ViewBag.Searched == false)
+{
+<h2 id ="Message">Provide the search criteria to start looking for a donor</h2>
+}
+
+@if (ViewBag.Searched)
+{
+    if (Model.Donors.Count > 0)
+    {
+        <table class="table" id="tblDonors">
+            <thead>
+                <tr>
+                    <th>Donor Name</th>
+                    <th>Recovery Date</th>
+                    <th>Donor Mobile No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var donor in Model.Donors)
+                {
+                    <tr>
+                        <td>@donor.DonorName</td>
+                        <td>@donor.RecoveryDate.ToShortDateString()</td>
+                        <td>@donor.DonorMobileNo</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h2 id="Message">No donor found with the given search criteria</h2>
+    }
+}
+----------------------------------------------------
+Add.cshtml
+-----------
+@model PlasmaDonorTracker.Models.Donor
+
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Add new Donor</h2>
+
+@using (Html.BeginForm("Add", "Donors"))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.DonorName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DonorName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DonorName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.BloodGroup, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.BloodGroup, new SelectList(ViewBag.BloodGroups.Items, "Value", "Text"), "Select Blood Group", new { @class = "form-control" })
+                @* @Html.DropDownListFor(model => model.BloodGroup, (SelectList)ViewBag.BloodGroup, "Select Blood Group", new { @class = "form-control" })*@
+                @Html.ValidationMessageFor(model => model.BloodGroup, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RecoveryDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RecoveryDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RecoveryDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DonorMobileNo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DonorMobileNo, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DonorMobileNo, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DonorCity, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DonorCity, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DonorCity, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" id="btnSubmit" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+@if (ViewBag.Message != "")
+{
+    <h2 id="Message">@ViewBag.Message</h2>
+}
+--------------------------------------------------
+_layout.cshtml
+-----------------
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Plasma Donor Controller</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("PlasmaDonorTracker", "Add", "Donors", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Add Donor", "Add", "Donors",null, new { @id = "lnkAdd"})</li>
+                    <li>@Html.ActionLink("Search Donor", "Search", "Donors",null, new { @id = "lnkSearch" })</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - PlasmaDonorTracker</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+----------------------------------------------------
+DonorRepository
+----------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace PlasmaDonorTracker.Models
+{
+    public class DonorRepository
+    {
+        private PlasmaBankContext context;
+        public DonorRepository()
+        {
+            context = new PlasmaBankContext();
+        }
+        public bool AddDonor(Donor donor)
+        {
+            Donor donorInDb = context.Donors.
+                SingleOrDefault(d => d.DonorName == donor.DonorName
+                && d.DonorCity == donor.DonorCity 
+                && d.DonorMobileNo == donor.DonorMobileNo);
+            if (donorInDb != null)
+                return false;
+            context.Donors.Add(donor);
+            if (context.SaveChanges() == 1)
+                return true;
+            return false;
+        }
+        public List<Donor> Search(string city, string bloodgroup)
+        {
+            List<Donor> donors = context.Donors
+                .Where(d => d.DonorCity.ToLower() == city.ToLower() &&
+                d.BloodGroup.ToLower() == bloodgroup.ToLower()).ToList();
+            return donors;
+        }
+    }
+}
+----------------------------------------------------
+PlasmaBankContext
+------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Data.Entity;
+
+namespace PlasmaDonorTracker.Models
+{
+    public class PlasmaBankContext : DbContext
+    {
+        public PlasmaBankContext() : base("PlasmaBankConnection")
+        {
+        }
+        public DbSet<Donor> Donors { get; set; }
+    }
+}
+------------------------------------------
