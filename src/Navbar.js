@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   buttons : {
-      color : 'none'
+    color: '#fff' ,
   },
 
   signin : {
@@ -62,7 +62,7 @@ function Navbar() {
 
     return (
           <div className = {classes.root}>
-              <AppBar position="sticky" justify = "center" className = {classes[navRef.current]}>
+              <AppBar position="sticky" justify = "center" className = {classes[navRef.current]} elevation = {20} >
         <Toolbar variant="dense">
           <IconButton edge="start" color="inherit" aria-label="menu">
             <MenuIcon />
@@ -73,16 +73,16 @@ function Navbar() {
 
           <div  >
           <ul className = {classes.buttons}>
-          <Button  color="textSecondary" href="/">  <strong> HOME </strong> </Button>
-          <Button  color="textSecondary" href="#contained-buttons">  <strong>IDEAS  </strong> </Button>
-          <Button  color="textSecondary" href="/about"> <strong> ABOUT US </strong> </Button>
+          <Button  color="textSecondary" href="/" className = {classes.buttons}>  <strong> HOME </strong> </Button>
+          <Button  color="textSecondary" href="/ideas" className = {classes.buttons}>  <strong>IDEAS  </strong> </Button>
+          <Button  color="textSecondary" href="/about" className = {classes.buttons}> <strong> ABOUT US </strong> </Button>
           
         
          </ul>
          </div>
 
          <div className={classes.signin}>
-         <Button  color="textSecondary" href="/signup">  <strong> SIGN IN   </strong> </Button>
+         <Button  color="textSecondary" href="/signup" className = {classes.buttons}>  <strong> SIGN IN   </strong> </Button>
          </div>
 
 

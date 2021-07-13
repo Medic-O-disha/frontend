@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles({
   root: {
-    marginTop : 40 , 
+    marginTop : 100 , 
     maxWidth: 300,
     marginInlineStart:70 ,
     shadowColor: "gray",
@@ -33,7 +33,7 @@ const useStyles = makeStyles({
 
   return (
     <div className= "rows">
-    <Card className={classes.root}>
+    <Card className={classes.root} elevation = {20} >
       <CardActionArea>
         <CardMedia
           className={classes.media}
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
       </CardActionArea>
       <CardActions >
 
-        <Button size="medium" color="primary">
+        <Button size="medium" color="primary" href = "/signup">
             <b>   GET STARTED </b> 
         </Button>
       
